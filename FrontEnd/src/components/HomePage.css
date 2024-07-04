@@ -1,0 +1,26 @@
+ /* src/components/HomePage.css */
+.jumbotron {
+  background-color: #f8f9fa;
+  padding: 2rem 1rem;
+}
+
+.fun-fact {
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+.custom-img {
+  width: 40%; /* Adjust the width as needed */
+}
+
+.search-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  justify-content: flex-start;
+  padding-left: 1px;
+  padding-right: 210px;
+}
