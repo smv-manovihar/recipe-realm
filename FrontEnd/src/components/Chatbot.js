@@ -1,56 +1,45 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './Chatbot.css';
-import chef from './images/p4.png'; 
+import React, { useState } from 'react'; // Importing React and the useState hook
+import axios from 'axios'; // Importing axios to make HTTP requests
+import 'bootstrap/dist/css/bootstrap.min.css'; // Importing Bootstrap CSS for styling
+import './Chatbot.css'; // Importing custom CSS for the chatbot
 
 const Chatbot = () => {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState(''); // State to hold user input
+  const [messages, setMessages] = useState([]); // State to hold chat messages
 
+  // Handle input change event
   const handleInputChange = (e) => {
     setInput(e.target.value);
   };
 
+  // Handle send button click or Enter key press
   const handleSend = async () => {
     if (input.trim()) {
-      const userMessage = { text: input, user: true };
-      setMessages([...messages, userMessage]);
-      
+      const userMessage = { text: input, user: true }; // User's message
+      setMessages([...messages, userMessage]); // Add user's message to the state
+
       try {
+        // Send the user input to the server
         const response = await axios.post('/api/chat', {
           user_input: input,
-          context: messages.map(msg => msg.text).join('\n')
+          context: messages.map(msg => msg.text).join('\n') // Concatenate all previous messages for context
         });
 
-        const botResponse = { text: response.data.response, user: false };
-        setMessages([...messages, userMessage, botResponse]);
+        const botResponse = { text: response.data.response, user: false }; // Bot's response
+        setMessages([...messages, userMessage, botResponse]); // Add both messages to the state
+
       } catch (error) {
         console.error('Error sending message:', error);
       }
 
-      setInput('');
+      setInput(''); // Clear the input field
     }
   };
 
+  // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSend();
-    }
-  };
-
-  const handleLoadMore = async () => {
-    try {
-      const moreRecipes = await axios.get('/api/recipes'); // Replace with actual endpoint for fetching more recipes
-      
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && lastMessage.recipes) {
-        const updatedRecipes = [...lastMessage.recipes, ...moreRecipes.data.recipes];
-        lastMessage.recipes = updatedRecipes;
-        setMessages([...messages.slice(0, -1), lastMessage]);
-      }
-    } catch (error) {
-      console.error('Error loading more recipes:', error);
     }
   };
 
@@ -62,27 +51,8 @@ const Chatbot = () => {
       <div className="chatbot-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.user ? 'user' : 'bot'}`}>
-            <div className="message-box-container">
-              {!msg.user && (
-                <div className="chef-image">
-                  <img src={chef} alt="Chef" />
-                </div>
-              )}
-              <div className={`message-box ${msg.user ? 'user-box' : 'bot-box'}`}>
-                {msg.text}
-                {msg.recipes && (
-                  <div className="recipes">
-                    {msg.recipes.map((recipe, recipeIndex) => (
-                      <div key={recipeIndex} className="recipe">
-                        <h5>{recipe.name}</h5>
-                        <p>{recipe.details}</p>
-                        <img src={recipe.image} alt={recipe.name} />
-                      </div>
-                    ))}
-                    <button className="btn btn-secondary" onClick={handleLoadMore}>Load More</button>
-                  </div>
-                )}
-              </div>
+            <div className="message-box">
+              <div className="message-text">{msg.text}</div>
             </div>
           </div>
         ))}

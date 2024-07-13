@@ -1,33 +1,44 @@
-const express = require('express'); // Importing the Express framework
-const axios = require('axios'); // Importing axios to make HTTP requests
-const path = require('path'); // Importing path to handle and transform file paths
-const app = express(); // Creating an Express application
+// server.js
 
-const ngrokUrl = "https://6aa3-34-145-94-63.ngrok-free.app"; // Replace this with your ngrok URL
+const express = require('express');
+const axios = require('axios');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-app.use(express.json()); // Middleware to parse JSON request bodies
-app.use(express.static(path.join(__dirname, 'build'))); // Serve static files from the React app's build directory
+const app = express();
+app.use(bodyParser.json());
+app.use(cors());
 
-// API endpoint to handle chat requests
-app.post('/api/chat', async (req, res) => {
-  try {
-    // Forward the request to the Flask backend using ngrok URL
-    const response = await axios.post(`${ngrokUrl}/chat`, req.body);
-    // Send the response back to the React frontend
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error in /api/chat:', error);
-    // Send an error response if the request fails
-    res.status(500).json({ error: 'Failed to process request' });
-  }
+const LLM1_URL = 'http://localhost:5002';
+const LLM2_URL = 'http://localhost:5001';
+
+app.post('/api/query', async (req, res) => {
+    const { llm, query } = req.body;
+
+    try {
+        const url = llm === 'llm1' ? `${LLM1_URL}/query` : `${LLM2_URL}/query`;
+        const response = await axios.post(url, { query });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error querying LLM:', error);
+        res.status(500).json({ error: 'Error querying LLM' });
+    }
 });
 
-// Serve the React app's main HTML file for any other requests
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+app.post('/api/generate', async (req, res) => {
+    const { llm, context, prompt } = req.body;
+
+    try {
+        const url = llm === 'llm1' ? `${LLM1_URL}/generate` : `${LLM2_URL}/generate`;
+        const response = await axios.post(url, { context, prompt });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error generating response:', error);
+        res.status(500).json({ error: 'Error generating response' });
+    }
 });
 
-const port = process.env.PORT || 3000; // Define the port the server will run on
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
