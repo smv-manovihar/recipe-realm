@@ -1,40 +1,116 @@
-// src/components/HomePage.js
-import React from 'react';
+
+
+
+
+import React, { useEffect, useRef, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
-import pineapple from './images/pineapple.jpg';
-import carrots from './images/carrots.jpg';
-import cake from './images/cake.jpg';
-import cheese from './images/cheese.jpg';                     
+import icon from './images/chef.jpg';
+//import chef from './images/foodicon.jpg';
+import funFacts from './funfacts';
+import { gsap } from 'gsap';
+import { useNavigate } from 'react-router-dom';
 
-const HomePage = ({ onSearchClick }) => {       
+const HomePage = ({ onSearchClick }) => {
+  const chefIconRef = useRef(null);
+  const factRefs = useRef([]);
+  const leadTextRef = useRef(null);
+  const [hidden, setHidden] = useState(false);
+  const navigate = useNavigate();
+
+  const shuffleArray = (array) => {
+    let shuffledArray = [...array];
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    }
+    return shuffledArray;
+  };
+
+  const getDistinctFacts = (count) => {
+    const shuffledFacts = shuffleArray(funFacts);
+    return shuffledFacts.slice(0, count);
+  };
+
+  const distinctFacts = getDistinctFacts(4); // Get 4 distinct facts
+
+  useEffect(() => {
+    // Rotating animation for the chef icon
+    gsap.to(chefIconRef.current, {
+      rotation: 360,
+      duration: 5,
+      repeat: -1,
+      ease: 'linear',
+    });
+
+    // Animate fun facts to appear one by one
+    gsap.from(factRefs.current, {
+      opacity: 0,
+      y: 20,
+      duration: 1,
+      stagger: 0.3,
+    });
+
+    gsap.fromTo(
+      leadTextRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 2.5, ease: 'power2.out' }
+    );
+
+  }, []);
+
+  const handleSearchClick = () => {
+    setHidden(true);
+    setTimeout(() => {
+      navigate('/chat');
+      onSearchClick();
+    }, 500); // Adjust timing to match your transition duration
+  };
+
   return (
-    <div className="container">
+    <div className={`container ${hidden ? 'hidden' : ''}`}>
       <header className="jumbotron text-center">
-        <h1 className="display-4">RECIPE REALM</h1>
-        <p className="lead">Chop it like it's hot!</p>
+        <p className="display-4">
+          {/* <img
+            ref={chefIconRef}
+            src={chef}
+            alt="Food Chef"
+            className="icon-chef"
+          /> */}
+          RECIPE REALM
+        </p>
+        <p className="lead" ref={leadTextRef}>
+          Unleash Your Inner Chef!
+        </p>
       </header>
-      <div className="row">
-        <div className="col-md-6">
-          <img src={pineapple} className="img-fluid custom-img" alt="Recipe 1" />
-          <p className="fun-fact">Pineapples: the only fruit that wears a crown and dares you to touch its spiky throne!</p>
+      <div className="fun-facts-container">
+        <p className="did-you-know text-center">Did you know?</p>
+        <div className="row">
+          {distinctFacts.map((fact, index) => (
+            <div key={index} className="col-md-6">
+              <div className="fact-box">
+                <p ref={(el) => (factRefs.current[index] = el)} className="fun-fact">
+                  {fact}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="col-md-6">
-          <img src={carrots} className="img-fluid custom-img" alt="Recipe 2" />
-          <p className="fun-fact">Carrots were originally purple until they got embarrassed and turned orange.</p>
-        </div>
-        <div className="col-md-6">
-          <img src={cake} className="img-fluid custom-img" alt="Recipe 1" />
-          <p className="fun-fact">Cake:The only reason to believe that cutting something can make you happier.</p>
-        </div>
-        <div className="col-md-6">
-          <img src={cheese} className="img-fluid custom-img" alt="Recipe 2" />
-          <p className="fun-fact">Cheese is like a good friend-it's always there to melt your heart!.</p>
-        </div>
-        {/* Add more images and fun facts in a criss-cross pattern */}
+      </div>
+      <div className="middle-box text-center">
+        <img src={icon} alt="Food Icon" className="food-icon" />
+        <p className="lead-1">Ready to Cook?</p>
+        <p className="lead-2">
+        Enter your ingredients to unlock recipes! Need assistance in any response? Click 'Reply' for AI cooking tips and answers.
+        </p>
       </div>
       <div className="search-bar">
-        <input type="text" className="form-control" placeholder="Enter your ingredients" onClick={onSearchClick} />
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Enter your Ingredients"
+          onClick={handleSearchClick}
+        />
       </div>
     </div>
   );
