@@ -26,8 +26,7 @@ const Chatbot = () => {
   const [loadMoreKey, setLoadMoreKey] = useState(0);
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const [isGemini, setIsGemini] = useState(true);
-  const SelectedModel = isGemini ? "GeminiAI" : "Llama";
+  const [llm, setLlm] = useState("GeminiAI");
 
   useEffect(() => {
     fetch("/ingredients.json")
@@ -49,7 +48,7 @@ const Chatbot = () => {
 
     // Send a greeting message when the component mounts
     const greetingMessage = pickRandomGreeting();
-    const initialMessages = [{ text: greetingMessage, user: false }];
+    const initialMessages = [{ text: greetingMessage, user: false , context: greetingMessage }];
     setMessages(initialMessages);
 
     // Simulate typing indicator (remove after 1 second)
@@ -134,7 +133,7 @@ const Chatbot = () => {
     const llm_response = await axios.post(
       "http://localhost:3001/api/generate",
       {
-        llm: SelectedModel, // Use selected LLM
+        llm: llm, // Use selected LLM
         context: replyTo.context,
         prompt: userMessage.text,
       }
@@ -162,8 +161,8 @@ const Chatbot = () => {
     const ingredientArray = inputIngredients
       .split(",")
       .map((item) => item.trim());
-    if (ingredientArray.length < 5) {
-      alert("Please enter at least 5 ingredients.");
+    if (ingredientArray.length < 3) {
+      alert("Please enter at least 3 ingredients.");
       return;
     }
 
@@ -175,7 +174,7 @@ const Chatbot = () => {
     }
 
     if (inputIngredients.length > 0 && isInputValid()) {
-      const userMessage = { text: input, user: true, replyTo: null };
+      const userMessage = { text: inputIngredients, user: true, replyTo: null };
 
       setMessages((prevMessages) => [...prevMessages, userMessage]);
       setSelectedIngredients([]);
@@ -185,7 +184,7 @@ const Chatbot = () => {
 
       const result = await axios.post("http://localhost:3001/api/query", {
         //   llm: "llm1",
-        llm: SelectedModel,
+        llm: llm,
         query: inputIngredients,
       });
       const recipes = result.data.recipes || [];
@@ -214,9 +213,9 @@ const Chatbot = () => {
 
   const handleLoadMore = async () => {
     try {
-      const llm = SelectedModel; // assume selectedLLM is a state variable or prop
+      const sllm = llm; // assume selectedLLM is a state variable or prop
       const result = await axios.get("http://localhost:3001/api/loadmore", {
-        params: { llm }
+        params: { sllm }
       });
       const text= pickRandomLoadMore();
       const recipes = result.data.recipes;
@@ -273,23 +272,24 @@ const Chatbot = () => {
     (msg) => msg.recipes && msg.recipes.length > 0
   );
 
+  const handleToggle = () => {
+    setLlm((prevLlm) => (prevLlm === "GeminiAI" ? "Llama" : "GeminiAI"));
+  };
+
   useEffect(() => {
     const switchElement = document.getElementById("s1-57");
     const labelElement = document.querySelector(".wrap-check-57 label");
 
-    const handleToggle = () => {
-      if (switchElement.checked) {
-        labelElement.textContent = "GeminiAI";
-      } else {
-        labelElement.textContent = "Llama";
-      }
+    const handleToggleLabel = () => {
+      labelElement.textContent = llm;
     };
 
-    switchElement.addEventListener("change", handleToggle);
+    switchElement.addEventListener("change", handleToggleLabel);
+
     return () => {
-      switchElement.removeEventListener("change", handleToggle);
+      switchElement.removeEventListener("change", handleToggleLabel);
     };
-  }, []);
+  }, [llm]);
 
   return (
     <div className="chatbot-container">
@@ -500,8 +500,14 @@ const Chatbot = () => {
         </select> */}
 
         <div className="wrap-check-57">
-          <input id="s1-57" type="checkbox" className="switch" />
-          <label htmlFor="s1-57"><b>Llama</b> </label>
+          <input
+            id="s1-57"
+            type="checkbox"
+            className="switch"
+            checked={llm === "GeminiAI"}
+            onChange={handleToggle}
+          />
+          <label htmlFor="s1-57">{llm}</label>
         </div>
 
         <div className="chatbot-input">

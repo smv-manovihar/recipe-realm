@@ -1,5 +1,3 @@
-// server.js
-
 const express = require("express");
 const axios = require("axios");
 const bodyParser = require("body-parser");
@@ -10,7 +8,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const LLM1_URL = "http://localhost:5002"; //gemini
-const LLM2_URL = "https://3048-34-16-130-184.ngrok-free.app"; //llama
+const LLM2_URL = "http://koi-wanted-mayfly.ngrok-free.app"; //llama
 
 app.post("/api/query", async (req, res) => {
   const { llm, query } = req.body;

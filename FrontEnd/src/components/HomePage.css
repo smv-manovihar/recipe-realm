@@ -223,11 +223,11 @@ body {
   display: flex;
   flex-direction: column;
   padding: 2px;
-  margin: 55px 450px 10px;
+  margin: 40px 450px 10px;
   border-radius: 30px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 30%;
-  height: 130px;
+  height: 180px;
   overflow: hidden;
   align-items: center;
   text-align: center;
@@ -248,7 +248,9 @@ body {
   margin-right: 20px;
 }
 .search-bar {
-  margin: 30px auto 10px; /* Adjusted to auto for centering */
+  margin: 10px auto 30px; /*Adjusted to auto for centering */
+  /* margin-bottom: 30px;
+  margin-left: 30px; */
   width: 100%;
   max-width: 600px;
   padding: 5px;

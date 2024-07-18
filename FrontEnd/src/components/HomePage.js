@@ -5,7 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
-import icon from './images/chef.jpg';
+import icon from './images/chef.png';
 //import chef from './images/foodicon.jpg';
 import funFacts from './funfacts';
 import { gsap } from 'gsap';
