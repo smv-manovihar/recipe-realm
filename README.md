@@ -1,4 +1,4 @@
-# TwinChef - Dual-LLM Recipe Recomentations
+# TwinChef - Dual-LLM Recipe Recomendations
 
 [![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
